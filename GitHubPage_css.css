@@ -55,13 +55,20 @@ body {
     clear: both;
 }
 .content h1 {
-    margin: 5px;
+    margin: 10px 10px 10px;
     color: #006633;
 }
 .content h2 {
     margin: 5px;
     font: 100 25px/0.8, bold;
     color: #006633;
+    margin: 10px 10px 10px;
+}
+.content h3 {
+    margin: 5px;
+    font: 100 25px/0.8, bold;
+    color: #006633;
+    margin: 10px 10px 10px;
 }
 .content p {
     font-size: 120%;
