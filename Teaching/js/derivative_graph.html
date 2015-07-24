@@ -1,0 +1,289 @@
+<!-- 
+Author: Chia Ying Lee
+Date: 7 Sep 2014
+Description: JS applet to illustrate how the secant line tends to the tangent line
+ -->
+
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+	<title>Tangent and secant lines</title>	
+	<script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+
+<body onLoad="init();">
+    <script language="javascript" type="text/javascript">
+    	var buffer = 20;
+		var xmin = -0.25;
+		var xmax = 3;
+		var xppu = 200;
+		var fmax = f(xmax);
+		var fppu = 50;
+		var fpmax = fprime(xmax);
+		var fpppu = 25; 
+		
+		var showScnt = true;
+
+		var x0 = .5;
+    	var x1 = .25;
+		
+		function init() {
+			draw_f(); GraphControl(); 
+		}
+		
+		function draw_f() {
+    		var canvas = document.getElementById("canvas-base");
+    		if (canvas.getContext) {
+    			var ctx = canvas.getContext("2d");
+    			ctx.globalCompositeOperation = 'destination-over';
+    			ctx.font = "12pt Helvetica bold, sans-serif";
+    			<!-- Draw axes for f -->
+    			ctx.beginPath(); ctx.moveTo(buffer, buffer + 200); ctx.lineTo(buffer + 650, buffer + 200); ctx.stroke();
+    			ctx.beginPath(); ctx.moveTo(buffer + 50, buffer); ctx.lineTo(buffer + 50, buffer + 225); ctx.stroke();
+    			ctx.fillText('x', buffer + 660, buffer + 200); ctx.fillText('f(x)', buffer + 50, buffer - 5);
+    			<!-- Draw axes for fprime -->
+    			ctx.beginPath(); ctx.moveTo(buffer, buffer + 425); ctx.lineTo(buffer + 650, buffer + 425); ctx.stroke();
+    			ctx.beginPath(); ctx.moveTo(buffer + 50, buffer + 250); ctx.lineTo(buffer + 50, buffer + 470); ctx.stroke();
+    			ctx.fillText('x', buffer + 660, buffer + 425); ctx.fillText("f '(x)", buffer + 50, 250 + buffer - 5);
+    			<!-- Draw f(x) = x (x-2)^2 -->
+    			ctx.lineWidth = 0.5;
+    			var dx = 1/50;
+    			var x = xmin + dx;
+    			ctx.beginPath(); ctx.moveTo(buffer, (fmax - f(xmin)) * fppu + buffer);
+    			while (x <= xmax) {
+    				ctx.lineTo((x - xmin) * xppu + buffer, (fmax - f(x)) * fppu + buffer);
+    				x += dx;
+    			}
+    			ctx.stroke();
+    			<!-- Draw fprime -->
+    			var x = xmin + dx;
+    			ctx.beginPath(); ctx.moveTo(buffer, (fpmax - fprime(xmin)) * fpppu + 250 + buffer);
+    			while (x <= xmax) {
+    				ctx.lineTo( (x - xmin) * xppu + buffer, (fpmax - fprime(x)) * fpppu + 250 + buffer );
+    				x += dx;
+    			}
+    			ctx.stroke();
+    			<!-- Draw tangent/secant -->
+    			draw_tangent();
+    			draw_secant();
+    			<!-- Control dials and instructions -->
+    			ctx.font = "10pt Helvetica bold, sans-serif";
+    			ctx.fillText("Click on the graph of f(x) to change a. Click on the x-axis to change the secant line.", buffer + 100, buffer - 10)
+    			ctx.font = "12pt Helvetica bold, sans-serif";
+    			ctx.fillText("Show/hide secant", buffer + 10, 530); ctx.fillStyle="rgb(230, 230, 230)";
+    			ctx.beginPath(); ctx.moveTo(buffer, 510); ctx.lineTo(buffer, 540);
+    			ctx.lineTo(buffer+150, 540); ctx.lineTo(buffer+150, 511); ctx.fill();
+    			ctx.fillStyle="black";
+    			ctx.fillText("Clear points on f ' (x)", buffer + 210, 530);
+    			ctx.fillStyle="rgb(230, 230, 230)";
+    			ctx.beginPath(); ctx.moveTo(buffer + 200, 510); ctx.lineTo(buffer + 200, 540);
+    			ctx.lineTo(buffer+360, 540); ctx.lineTo(buffer+360, 510); ctx.fill();
+    		}
+    	}
+		
+    	function draw_tangent() {
+    		var canvas = document.getElementById("canvas-tangent");
+    		if (canvas.getContext) {
+    			var ctx = canvas.getContext("2d");
+    			ctx.clearRect(0,0, canvas.width, canvas.height);
+	    		draw_point(ctx, x0, true);
+	   			<!-- Tangent line & slope --> 
+	   			ctx.lineWidth=0.9; ctx.strokeStyle="black";
+	   			var tgntlength = 0.3;
+	   			var xvalue = Math.max(xmin, x0 - tgntlength);
+	   			var yvalue = fprime(x0) * (xvalue - x0) + f(x0);
+	   			ctx.beginPath(); 
+	   			ctx.moveTo((xvalue - xmin) * xppu + buffer, (fmax - yvalue) * fppu + buffer);
+	   			xvalue = Math.min(xmax, x0 + tgntlength);
+	   			yvalue = fprime(x0) * (xvalue - x0) + f(x0);
+	   			ctx.lineTo((xvalue - xmin) *  xppu + buffer, (fmax - yvalue) * fppu + buffer);
+	   			ctx.stroke();
+	   			<!-- Label slope -->
+	   			var yoffset = fprime(x0)>0 ? 15 : -5;
+	   			ctx.fillText('Slope = ' + fprime(x0).toFixed(4), (x0 - xmin) * xppu + buffer, (fmax - f(x0)) * fppu + buffer + yoffset);
+    		}
+    	}
+    	
+    	function draw_secant() {
+    		var canvas = document.getElementById("canvas-secant");
+    		if (canvas.getContext) {
+    			var ctx = canvas.getContext("2d");
+    			ctx.clearRect(0,0, canvas.width, canvas.height);
+	    		ctx.fillStyle="red"; 
+	   			draw_point(ctx, x1, false);
+	   			<!-- Draw secant line -->
+	   			ctx.strokeStyle="red"; ctx.lineWidth = 0.8;
+	    		var slope = x1==x0 ? fprime(x0) : ((f(x1)-f(x0)) / (x1-x0));
+	    		var scntlen = 0.4;
+	    		var xvalue = Math.max(xmin, Math.min(x0, x1) - scntlen);
+	    		var xpx = (xvalue - xmin) * xppu + buffer;
+	    		var fpx = (fmax - (slope * (xvalue - x0) + f(x0))) * fppu + buffer;	    		
+	    		ctx.beginPath();
+	    		ctx.moveTo(xpx, fpx);
+	    		xvalue = Math.min(xmax, Math.max(x0, x1) + scntlen);
+	    		xpx = (xvalue - xmin) * xppu + buffer;
+	    		fpx = (fmax - (slope * (xvalue - x0) + f(x0))) * fppu + buffer;
+	    		ctx.lineTo(xpx, fpx);
+	    		ctx.stroke();
+	    		<!-- Label slope -->
+				var x0px = (x0 - xmin) * xppu + buffer;
+				var x1px = (x1 - xmin) * xppu + buffer;
+				var f0px = (fmax - f(x0)) * fppu + buffer;
+				var f1px = (fmax - f(x1)) * fppu + buffer;
+	    		var yoffset = slope>0 ? 0 : 13;
+				ctx.fillText('Slope = ' + slope.toFixed(4), xpx, fpx + yoffset);
+				<!-- dx -->
+				ctx.strokeStyle='blue'; ctx.fillStyle='blue';
+				ctx.fillText('dx', 0.5 * (x0px + x1px) - 5, 200 + buffer - 25);
+				ctx.beginPath(); ctx.moveTo(x0px, 200 + buffer - 43); ctx.moveTo(x0px, 200 + buffer - 35);
+				ctx.moveTo(x0px, 200 + buffer - 39); ctx.lineTo(x1px, 200 + buffer - 39); 
+				ctx.lineTo(x1px, 200 + buffer - 35); ctx.lineTo(x1px, 200 + buffer - 43);
+				ctx.stroke();
+				<!-- dy -->
+				ctx.fillText('dy', 20 + buffer, 0.5 * (f0px + f1px) + 5);
+				ctx.beginPath(); ctx.moveTo(41 + buffer, f0px); ctx.lineTo(49 + buffer, f0px);
+				ctx.lineTo(45 + buffer, f0px); ctx.lineTo(45 + buffer, f1px);
+				ctx.lineTo(49 + buffer, f1px); ctx.lineTo(41 + buffer, f1px); 
+				ctx.stroke(); 
+			}
+    	}
+    	
+    	function draw_point(ctx, x, tgnt) {
+			var xpx = (x - xmin) * xppu + buffer;
+			var fpx = (fmax - f(x)) * fppu + buffer;
+    		<!-- Draw point on graph of f -->
+			ctx.beginPath(); 
+			ctx.arc(xpx, fpx, 3, 0, 2*Math.PI, true); 
+			ctx.fill();
+			<!-- x-axis label settings -->
+			ctx.font = "12pt Helvetica bold, sans-serif";
+			<!-- Draw vertical line to x-axis and horizontal line to y-axis -->
+			ctx.strokeStyle = "rgb(120, 120, 120)"; ctx.lineWidth = 0.25;
+			ctx.beginPath(); ctx.moveTo(xpx, fpx); ctx.lineTo(50 + buffer, fpx); ctx.stroke();
+			ctx.beginPath(); ctx.moveTo(xpx, fpx);
+			if (tgnt) {
+				ctx.lineTo(xpx, (fpmax - fprime(x)) * fpppu + 250 + buffer); ctx.stroke();
+				<!-- fprime value -->
+				var fppx = (fpmax - fprime(x)) * fpppu + 250 + buffer;
+				ctx.beginPath(); ctx.moveTo(xpx, fppx);
+				ctx.lineTo(50 + buffer, fppx); ctx.stroke();
+				var fpvalue = fprime(x);
+				ctx.fillText(fpvalue.toFixed(4), 15, fppx + 5);
+				<!-- Label -->
+				ctx.fillText('a=' + x.toFixed(3), xpx, buffer + 200 + 20);
+				<!-- Draw point on graph of fprime -->
+				ctx1 = document.getElementById("canvas-fprime").getContext("2d");
+				ctx1.beginPath();
+				ctx1.arc(xpx, fppx, 3, 0, 2*Math.PI, true);
+				ctx1.fill();
+			} else {
+				ctx.lineTo(xpx, 200 + buffer); ctx.stroke();
+				<!-- Label -->
+				ctx.fillText('x', xpx, buffer + 200 - 5);
+			}
+			return ctx;
+    	}
+    	
+    	function f(x) {
+    		return x * (x-2) * (x-2) + 1;
+    	}
+    	function fprime(x) {
+    		return 3*x*x - 8*x + 4;
+    	}
+    	
+
+    	function GraphControl() {
+    		var canvas = document.getElementById("canvas-secant");
+    		var ctx = canvas.getContext("2d");
+       	 	canvas.addEventListener("click", onGraphClick, false);
+       	    function onGraphClick(e) {
+       	    	var pos = getCursorPosition(e);
+       	    	var xvalue = xmin + (pos[0] - buffer) / xppu;
+       	    	var yvalue = fmax - (pos[1] - buffer) / fppu;
+       	    	<!-- Redraw secant and tangent lines -->
+       	    	if (showScnt && yvalue >= -0.1 && yvalue <= 0.1) {
+       	    		x1 = xvalue;
+       	    		draw_secant();
+       	    	}
+       	    	else if (yvalue >= f(xvalue) - 0.1 && yvalue <= f(xvalue) + 0.1) {
+       	    		x0 = xvalue;
+       	    		draw_tangent();
+       	    		if (showScnt) {	draw_secant(); }
+       	    	}
+       	    	<!-- Toggle show secant button -->
+       	    	if (pos[0] >= buffer && pos[0] <= buffer + 150 && pos[1] >= 510 && pos[1] <= 540) {
+       	    		if (showScnt) {
+       	    			ctx.clearRect(0, 0, canvas.width, canvas.height);
+       	    			showScnt = false;
+       	    		} else {
+       	    			draw_secant();
+       	    			showScnt = true;
+       	    		}
+       	    	}
+       	    	<!-- Clear points on f' -->
+       	    	if (pos[0] >= buffer + 200 && pos[0] <= buffer + 350 && pos[1] >= 510 && pos[1] <= 540) {
+       	    		document.getElementById("canvas-fprime").getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+       	    		draw_tangent();
+       	    	} 
+       	    }
+	       	function getCursorPosition(e) {
+	    	    	var x;
+	    	    	var y;
+	    	      	if (e.pageX != undefined && e.pageY != undefined) {
+	    	  			x = e.pageX;
+	    	  			y = e.pageY;
+	    	      	} else {
+	 	    	  	x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+	 	    	  	y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+	 	    	}
+	     		x -= canvas.offsetLeft + 8;
+	     	    y -= canvas.offsetTop + 8;  
+	 	    	return [x,y];
+	 	    }
+   	  	}
+		
+    </script>
+    <noscript>
+    	<h3>This site requires JavaScript.</h3>
+    </noscript>
+    
+    <style type="text/css">
+      canvas { border: 1px solid black; }
+    </style>
+    
+
+    <div id="canvases" style="position:relative; width:690px; height:550px">
+    <canvas id="canvas-base" style="z-index: 1; position:absolute; left:0px; top:0px;" width='690' height='550'>
+      Sorry: Browser does not support Graphics Canvas</canvas>
+    <canvas id="canvas-tangent" style="z-index: 2; position:absolute; left:0px; top:0px;" width='690' height='550'>
+	  Sorry: Browser does not support Graphics Canvas</canvas>
+	<canvas id="canvas-fprime" style="z-index: 3; position:absolute; left:0px; top:0px;" width='690' height='550'>
+	  Sorry: Browser does not support Graphics Canvas</canvas>
+	<canvas id="canvas-secant" style="z-index: 4; position:absolute; left:0px; top:0px;" width='690' height='550'>
+	  Sorry: Browser does not support Graphics Canvas</canvas>
+	</div>
+	
+	<div style="width:690px">
+	<p> <font size='4'>
+	The top graph shows $f(x) = x(x-2)^2 + 1$ and the tangent line at $x=a$. 
+	<br/>
+	Recall that 
+	$$ \text{Slope of the secant line between $a$ and $x$} \ =\ \frac{f(x)-f(a)}{x-a}.$$
+	Hence, for any $a$,
+	$$f'(a)\ =\ \text{Slope of tangent line at }a \ =\ \lim_{x \rightarrow a} \frac{f(x)-f(a)}{x-a}.$$
+	The value of $f'(a)$ for each $a$ is plotted on the bottom graph. 
+	As $a$ changes, $f'(a)$ traces out a function.
+	Thus, $f'(x)$ as a function of $x$, where, given $x$, the value of $f'(x)$ is the slope of the tangent line to $f$ at $x$. 
+	<br/>
+	</font></p>
+	</div>
+	    
+    </body>
+
+
+</html>

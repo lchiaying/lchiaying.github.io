@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+	<title>MATH 184 2014W Course Section Page </title>
+	<link rel="stylesheet" href="default.css" type="text/css"/>
+	<script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<body id="body" onLoad="loadFrame('home');" onDblClick="changeImage();">
+<script language="javascript" type="text/javascript">
+    <!-- Hide JavaScript
+    	var menuElements = new Array('home', 'syllabus', 'notes', 'resources', 'calendar');
+    	function loadFrame(str) {
+    		var ht = 700;
+    		if (str == 'calendar') { ht = 620; }
+    		document.getElementById("textContent").innerHTML='<iframe src="' + str + '.html" width=750 height=' + ht + ' scrolling="auto" frameborder=0></iframe>';
+    		for (var i = 0; i < menuElements.length; ++i) {
+    			document.getElementById(menuElements[i] + 'Link').setAttribute('style', 'font-weight: none');
+    		}
+    		document.getElementById(str + 'Link').setAttribute('style', 'font-weight: bold');
+    	}
+    	
+    	function loadPage(str) {
+    		document.getElementById("textContent").innerHTML='<embed src="' + str + '.html" width=750 overflow=auto>';
+    	}
+		
+		var imageFilenames = new Array('url(clocktower.jpg) repeat-y fixed bottom center', 'url(flowerysky.jpg) repeat-y fixed top center', 'url(redflower.jpg) 25%');
+		var imageIndex = 1;
+		function changeImage() 
+		{
+			document.getElementById("body").style.background=imageFilenames[imageIndex];
+			imageIndex = ++imageIndex % imageFilenames.length;
+			return true;
+		}
+	-->
+    </script>
+    <noscript>
+    	<h3>This site requires JavaScript.</h3>
+    </noscript>
+
+
+<div class="header">
+	MATH 184 - Sections 101 & 102
+</div>
+
+<div class="main"> 
+<div class="container">
+	<div class="menu">
+		<a id="homeLink" onClick="loadFrame('home');"><u>Home</u></a>
+    	<a id="syllabusLink" onClick="loadFrame('syllabus');"><u>Syllabus</u></a>
+		<a id="notesLink" onClick="loadFrame('notes');"><u>Lecture Notes</u></a>
+		<a id="resourcesLink" onClick="loadFrame('resources');"><u>Resources</u></a>
+		<a id="calendarLink" onClick="loadFrame('calendar');"><u>Calendar</u></a>
+	</div>
+	
+	
+	<div id="textContent">
+		<!-- Contents of tabs go here -->
+	</div>
+	
+</div> <!-- End class="container" -->
+</div> <!-- End class="main" -->
+
+
+<div id="bgimage" class="footer" onClick="changeImage();">
+	<span class="right"><font color="gray"><p>Image by Chia Ying Lee<br/>Click to change.</p></font></span>
+	<div class="clearer"><span></span></div>
+</div>
+
+<div class="content" style="opacity:0.65;">
+Trouble viewing? Navigate to <a href="home.html">Home</a>, <a href="syllabus.html">Syllabus</a>, 
+<a href="notes.html">Notes</a>, and <a href="resources.html">Resources</a>.
+</div>
+
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!-- 
+Author: Chia Ying Lee
+Date: 7 Sep 2014
+Description: JS applet to illustrate how the secant line tends to the tangent line
+ -->
+
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+	<title>Tangent and secant lines</title>	
+	<script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+
+<body onLoad="init();">
+    <script language="javascript" type="text/javascript">
+    	var x0 = .5;
+    	var x1 = x0 + .3;
+		var xmin = -0.25;
+		var xmax = 3;
+		var ymin = -0.5;
+		var ymax = f(xmax);
+		
+		function init() {
+			draw_f(); GraphControl(); 
+		}
+		
+		function draw_f() {
+    		var canvas = document.getElementById("canvas-base");
+    		if (canvas.getContext) {
+    			var ctx = canvas.getContext("2d");
+    			ctx.globalCompositeOperation = 'destination-over';
+    			<!-- Draw axes -->
+    			ctx.beginPath(); ctx.moveTo(25, 425); ctx.lineTo(375, 425); ctx.stroke();
+    			ctx.beginPath(); ctx.moveTo(50, 25); ctx.lineTo(50, 475); ctx.stroke();
+    			ctx.font = "10pt Helvetica bold, sans-serif";
+    			ctx.fillText('x', 380, 425); ctx.fillText('y', 50, 20);
+    			ctx.save();
+    			<!-- Draw f(x) = x (x-2)^2 -->
+    			ctx.lineWidth = 0.5;
+    			var dx = 1/20;
+    			var x = xmin + dx;
+    			ctx.beginPath(); ctx.moveTo(25, (ymax-f(xmin))*100 + 25);
+    			while (x <= xmax) {
+    				ctx.lineTo((x-xmin)*100 + 25, (ymax-f(x))*100 + 25);
+    				x += dx;
+    			}
+    			ctx.stroke();
+    			<!-- Function -->
+    			ctx.fillText('f(x) = x(x-2)^2 + 1', 230, 40);
+    			ctx.fillText('Click on the graph to change a. Click on the x-axis to change the secant line.', 25, 495);
+    			<!-- Draw tangent/secant -->
+    			draw_tangent();
+    			draw_secant();
+    		}
+    	}
+		
+    	function draw_tangent() {
+    		var canvas = document.getElementById("canvas-tangent");
+    		if (canvas.getContext) {
+    			var ctx = canvas.getContext("2d");
+    			ctx.clearRect(0,0, canvas.width, canvas.height);
+	    		draw_point(ctx, x0, 'a', true);
+	   			<!-- Tangent line & slope --> 
+	   			ctx.lineWidth=0.9; ctx.strokeStyle="black";
+	   			var tgntlength = 0.8;
+	   			var xvalue = Math.max(xmin, x0-tgntlength);
+	   			var yvalue = fprime(x0) * (xvalue - x0) + f(x0);
+	   			ctx.beginPath(); 
+	   			ctx.moveTo((xvalue-xmin)*100 + 25, (ymax-yvalue) * 100 + 25);
+	   			xvalue = Math.min(xmax, x0+tgntlength);
+	   			yvalue = fprime(x0) * (xvalue - x0) + f(x0);
+	   			ctx.lineTo((xvalue-xmin)*100 + 25, (ymax-yvalue)*100 + 25);
+	   			ctx.stroke();
+	   			var yoffset = fprime(x0)>0 ? 22 : 40;
+	   			ctx.fillText('Slope = ' + fprime(x0).toFixed(4), (xvalue-xmin)*100 - 18, (ymax-yvalue)*100 + yoffset);
+    		}
+    	}
+    	
+    	function draw_secant() {
+    		var canvas = document.getElementById("canvas-secant");
+    		if (canvas.getContext) {
+    			var ctx = canvas.getContext("2d");
+    			ctx.clearRect(0,0, canvas.width, canvas.height);
+	    		ctx.fillStyle="red"; 
+	   			draw_point(ctx, x1, 'x', false);
+	   			ctx.strokeStyle="red"; ctx.lineWidth = 0.8;
+	    		var slope = x1==x0 ? fprime(x0) : ((f(x1)-f(x0)) / (x1-x0));
+	    		var scntlen = 0.8;
+	    		var xvalue = Math.max(xmin, Math.min(x0, x1) - scntlen);
+	    		var yvalue = slope * (xvalue - x0) + f(x0);	    		
+	    		ctx.beginPath();
+	    		ctx.moveTo((xvalue-xmin)*100 + 25, (ymax-yvalue)*100 + 25);
+	    		xvalue = Math.min(xmax, Math.max(x0, x1) + scntlen);
+	    		yvalue = slope * (xvalue - x0) + f(x0);
+	    		ctx.lineTo((xvalue-xmin)*100 + 25, (ymax-yvalue)*100 + 25);
+	    		ctx.stroke();
+	    		var yoffset = 25;
+				ctx.fillText('Slope = ' + slope.toFixed(4), (x1-xmin)*100 +25, (ymax-f(x1))*100 + yoffset);
+    		}
+    	}
+    	
+    	function draw_point(ctx, x, labelName, labelBelow) {
+    		<!-- Draw x -->
+			ctx.beginPath(); 
+			ctx.arc((x-xmin)*100 + 25, (ymax-f(x))*100 + 25, 3, 0, 2*Math.PI, true); 
+			ctx.fill();
+			<!-- Draw vertical line to x-axis -->
+			ctx.strokeStyle = "rgb(120, 120, 120)"; ctx.lineWidth = 0.25;
+			ctx.beginPath(); 
+			ctx.moveTo((x-xmin)*100 + 25, 425); 
+			ctx.lineTo((x-xmin)*100 + 25, (ymax-f(x))*100 + 25); 
+			ctx.stroke();
+			<!-- Label above or below x-axis -->
+			ctx.font = "12pt Helvetica bold, sans-serif";
+			var yoffset = labelBelow ? 440 : 420;
+			ctx.fillText(labelName + '=' + x.toFixed(2), (x-xmin)*100 + 20, yoffset);
+			return ctx;
+    	}
+    	
+    	function f(x) {
+    		return x * (x-2) * (x-2) + 1;
+    	}
+    	function fprime(x) {
+    		return 3*x*x - 8*x + 4;
+    	}
+    	
+
+    	function GraphControl() {
+    		var canvas = document.getElementById("canvas-secant");
+    		var ctx = canvas.getContext("2d");
+       	 	canvas.addEventListener("click", onGraphClick, false);
+       	    function onGraphClick(e) {
+       	    	var pos = getCursorPosition(e);
+       	    	var xvalue = xmin + (pos[0] - 33) / 100;
+       	    	var yvalue = ymax - (pos[1] - 33) / 100
+       	    	if (yvalue >= -0.1 && yvalue <= 0.1) {
+       	    		x1 = xvalue;
+       	    		draw_secant();
+       	    	}
+       	    	else if (yvalue >= f(xvalue) - 0.1 && yvalue <= f(xvalue) + 0.1) {
+       	    		x0 = xvalue;
+       	    		draw_tangent();
+       	    		draw_secant();
+       	    	}
+       	    }
+	       	function getCursorPosition(e) {
+	    	    	var x;
+	    	    	var y;
+	    	      	if (e.pageX != undefined && e.pageY != undefined) {
+	    	  			x = e.pageX;
+	    	  			y = e.pageY;
+	    	      	} else {
+	 	    	  	x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+	 	    	  	y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+	 	    	}
+	     		x -= canvas.offsetLeft;
+	     	    y -= canvas.offsetTop;  
+	 	    	return [x,y];
+	 	    }
+   	  	}
+		
+    </script>
+    <noscript>
+    	<h3>This site requires JavaScript.</h3>
+    </noscript>
+    
+    <style type="text/css">
+      canvas { border: 1px solid black; }
+    </style>
+    
+
+    <div id="canvases" style="position:relative; width:600px; height:500px">
+    <canvas id="canvas-base" style="z-index: 1; position:absolute; left:0px; top:0px;" width='500' height='500'>
+      Sorry: Browser does not support Graphics Canvas</canvas>
+    <canvas id="canvas-tangent" style="z-index: 2; position:absolute; left:0px; top:0px;" width='500' height='500'>
+	  Sorry: Browser does not support Graphics Canvas</canvas>
+	<canvas id="canvas-secant" style="z-index: 3; position:absolute; left:0px; top:0px;" width='500' height='500'>
+	  Sorry: Browser does not support Graphics Canvas</canvas>
+	</div>
+	
+	<div style="width:580px">
+	<p> <font size='4'>
+	The graph shows $f(x) = x(x-2)^2 + 1$.
+	<br/>
+	As $x$ gets closer to $a$, the slope of the secant line between $a$ and $x$ tends toward the slope of the tangent line at $a$.
+	<br/>
+	Mathematically, the slope of the secant line between $a$ and $x$ is
+	$$\frac{\text{Change in }y}{\text{Change in }x} = \frac{f(x)-f(a)}{x-a}.$$
+	Hence, 
+	$$\text{Slope of tangent line at }a \text{ is equal to } \lim_{x \rightarrow a} \frac{f(x)-f(a)}{x-a}.$$
+	<br/>
+	</font></p>
+	</div>
+	    
+    </body>
+
+
+</html>

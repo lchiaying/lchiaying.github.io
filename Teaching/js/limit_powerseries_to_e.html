@@ -1,0 +1,208 @@
+<!-- 
+Author: Chia Ying Lee
+Date: 30 Aug 2014
+Description: JS applet to illustrate how an n-sided regular polygon tends towards a circle as n tends to infinity
+ -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+    <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+	  <title>Power series of e</title>
+	  <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [["$","$"]]}});</script>
+	  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>			
+    </head>
+
+    <body onLoad="init();">
+    <script language="javascript" type="text/javascript">
+    	var nPower = 0;
+    	var nFactorial = 1;
+    	var ps = new Array(113);
+    	var dx = 0.05;
+    	for (var i = 0; i < ps.length; ++i) { ps[i] = 1; }
+    	var imgwidth = 30; var imgxpos = 10; var imgypos = 460;
+    	
+    	function init() {
+    		draw_exp(); draw_powerseries(nPower); pmdials();
+    	}
+		var xmin = -3.8;
+		var ymax = 7;
+		var yppu = 50;
+		
+    	function draw_exp() {
+    		var canvas = document.getElementById("canvas-base");
+    		if (canvas.getContext) {
+    			var ctx = canvas.getContext("2d");
+    			ctx.globalCompositeOperation = 'destination-over';
+    			<!-- Draw axes -->
+    			ctx.beginPath(); ctx.moveTo(20, 370); ctx.lineTo(580, 370); ctx.stroke();
+    			ctx.beginPath(); ctx.moveTo(400, 20); ctx.lineTo(400, 400); ctx.stroke();
+    			ctx.font = "10pt Helvetica bold, sans-serif";
+    			ctx.fillText('x', 585, 370); ctx.fillText('y', 400, 15);
+    			<!-- Draw e^x -->
+    			ctx.lineWidth = 0.75;
+    			var px = 0;
+				ctx.beginPath(); ctx.moveTo(px + 20, (ymax - Math.exp(xmin)) * yppu + 20);
+    			while (px < 560) {
+    				px += 1;
+    				ctx.lineTo(px + 20, (ymax - Math.exp(xmin + px / 100)) * yppu + 20);
+    			}
+    			ctx.stroke();
+    			<!-- Minus/Plus controls -->
+	    	  	var img_minus = new Image();
+	    	  	img_minus.onload = function() { ctx.drawImage(img_minus, imgxpos, imgypos, imgwidth, imgwidth);}
+	    	  	img_minus.src = 'images/minus.gif';
+	    	  	var img_plus = new Image();
+	    	  	img_plus.onload = function() { ctx.drawImage(img_plus, imgxpos + imgwidth + 10, imgypos, imgwidth, imgwidth); }
+	    	  	img_plus.src = 'images/plus.gif';
+    		}
+    	}
+    
+    	function draw_powerseries() {
+    		var canvas = document.getElementById("canvas-powerseries");
+    		if (canvas.getContext) {
+    			var ctx = canvas.getContext("2d");
+    			ctx.globalCompositeOperation = 'destination-over';
+    			ctx.clearRect(0,0, canvas.width, canvas.height);
+    			<!-- Plot power series from ps -->
+    			ctx.lineWidth = 0.75; ctx.strokeStyle = "red";
+    			var px = 0;
+    			var i = 0;
+    			ctx.beginPath(); ctx.moveTo(px + 20, (ymax - ps[i]) * yppu + 20);
+    			while (px < 560) {
+    				px += 5; i++;
+    				ctx.lineTo(px + 20, (ymax - ps[i]) * yppu + 20);
+    			}
+    			ctx.stroke();
+    			<!-- Text -->
+	    	  	ctx.font = "18pt Helvetica bold, sans-serif"
+	    	  	ctx.fillText('Polynomial of degree n=' + nPower, imgxpos + 2 * imgwidth + 30, imgypos + 25);
+    		}
+    	} 
+    	
+    	function change_n(incr) {
+    		if (incr) {
+    			nPower++;
+    			if (nPower <= 20) {
+	    			nFactorial *= nPower;
+	    			var xvalue = xmin;
+	    			for (var i = 0; i < ps.length; ++i) {
+	    				ps[i] = ps[i] + Math.pow(xvalue,nPower)/nFactorial;
+	    				xvalue += dx;
+	    			}
+    			}
+    		}
+    		else {
+    			if (nPower > 0) {
+    				if (nPower <= 20) {
+	    			var xvalue = xmin;
+	    			for (var i = 0; i < ps.length; ++i) {
+	    				ps[i] = ps[i] - Math.pow(xvalue,nPower)/nFactorial;
+	    				xvalue += dx;
+	    			}
+	    			nFactorial /= nPower;
+    				}
+    				nPower--;
+    			}
+    		}		
+    	}
+    	  	
+    	
+    	function pmdials() {
+   	  		var canvas = document.getElementById("canvas-powerseries");
+   	  		var ctx = canvas.getContext("2d");
+       	  	canvas.addEventListener("click", onCanvasClick, false);
+       	    function onCanvasClick(e) {
+       	    	var pos = getCursorPosition(e);
+       	     	if (pos[0] >= imgxpos && pos[0] <= (imgxpos + imgwidth) && pos[1] >= imgypos && pos[1] <= (imgypos + imgwidth)) {
+    				change_n(false);
+    	    	} 
+    	    	else if (pos[0] >= (imgxpos + imgwidth + 10) && pos[0] <= (imgxpos + 2*imgwidth + 10) && pos[1] >= imgypos && pos[1] <= (imgypos + imgwidth)) {
+    	    		change_n(true);
+    	    	}
+       	     	draw_powerseries();
+       	     	if (nPower <= 12) {
+       	     		document.getElementById("show-power-series").innerHTML = document.getElementById("power-series-" + nPower).innerHTML;
+       	     	}
+       	     	else {
+       	     	document.getElementById("show-power-series").innerHTML = document.getElementById("power-series-n").innerHTML;
+       	     	}
+       	    }
+       	    function getCursorPosition(e) {
+       	    	var x;
+       	    	var y;
+       	      	if (e.pageX != undefined && e.pageY != undefined) {
+       	  			x = e.pageX;
+       	  			y = e.pageY;
+       	      	} else {
+    	    	  	x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+    	    	  	y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+    	    	}
+        		x -= canvas.offsetLeft + 8;
+        	    y -= canvas.offsetTop + 8;  
+    	    	return [x,y];
+    	    }
+   	  	}
+    	  	
+		
+    </script>
+    <noscript>
+    	<h3>This site requires JavaScript.</h3>
+    </noscript>
+    
+    <style type="text/css">
+      canvas { border: 1px solid black; }
+    </style>
+    
+    <div id="canvases" style="position:relative; width:600px; height:500px">
+      <canvas id="canvas-base" style="z-index: 1; position:absolute; left:0px; top:0px;" width='600' height='500'>
+        Sorry: Browser does not support Graphics Canvas</canvas>
+      <canvas id="canvas-powerseries" style="z-index: 2; position:absolute; left:0px; top:0px;" width='600' height='500'>
+	    Sorry: Browser does not support Graphics Canvas</canvas>
+	</div>
+    
+    <div id="power-series-0" style="display:none"> $\displaystyle{p_0(x) = 1}$ </div>
+    <div id="power-series-1" style="display:none"> $\displaystyle{p_1(x) = 1 + x}$ </div>
+    <div id="power-series-2" style="display:none"> $\displaystyle{p_2(x) = 1 + x + \frac{1}{2}x^2}$ </div>    
+    <div id="power-series-3" style="display:none"> $\displaystyle{p_3(x) = 1 + x + \frac{1}{2}x^2 + \frac{1}{6}x^3}$ </div>
+	<div id="power-series-4" style="display:none"> $\displaystyle{p_4(x) = 1 + x + \frac{1}{2}x^2 + \frac{1}{6}x^3 + \frac{1}{24}x^4}$ </div>
+	<div id="power-series-5" style="display:none"> $\displaystyle{p_5(x) = 1 + x + \frac{1}{2}x^2 + \frac{1}{6}x^3 + \frac{1}{24}x^4 + \frac{1}{120}x^5}$ </div>
+	<div id="power-series-6" style="display:none"> $\displaystyle{p_6(x) = 1 + x + \frac{1}{2}x^2 + \frac{1}{6}x^3 + \frac{1}{24}x^4 + \frac{1}{120}x^5 + \frac{1}{720}x^6}$ </div>
+	<div id="power-series-7" style="display:none"> $\displaystyle{p_7(x) = 1 + x + \frac{1}{2}x^2 + \frac{1}{6}x^3 + \frac{1}{24}x^4 + \frac{1}{120}x^5 + \frac{1}{720}x^6 + \frac{1}{7!}x^7}$ </div>
+	<div id="power-series-8" style="display:none"> $\displaystyle{p_8(x) = 1 + x + \frac{1}{2!}x^2 + \frac{1}{3!}x^3 + \dots + \frac{1}{7!}x^7 + \frac{1}{8!}x^8}$ </div>
+	<div id="power-series-9" style="display:none"> $\displaystyle{p_9(x) = 1 + x + \frac{1}{2!}x^2 + \frac{1}{3!}x^3 + \dots + \frac{1}{8!}x^8 + \frac{1}{9!}x^9}$ </div>
+	<div id="power-series-10" style="display:none"> $\displaystyle{p_{10}(x) = 1 + x + \frac{1}{2!}x^2 + \frac{1}{3!}x^3 + \dots + \frac{1}{9!}x^9 + \frac{1}{10!}x^{10}}$ </div>
+	<div id="power-series-11" style="display:none"> $\displaystyle{p_{11}(x) = 1 + x + \frac{1}{2!}x^2 + \frac{1}{3!}x^3 + \dots + \frac{1}{10!}x^{10} + \frac{1}{11!}x^{11}}$ </div>
+	<div id="power-series-12" style="display:none"> $\displaystyle{p_{12}(x) = 1 + x + \frac{1}{2!}x^2 + \frac{1}{3!}x^3 + \dots + \frac{1}{1!}x^{11} + \frac{1}{12!}x^{12}}$ </div>
+	<div id="power-series-n" style="display:none"> $\displaystyle{p_n(x) = 1 + x + \frac{1}{2!}x^2 + \frac{1}{3!}x^3 + \dots + \frac{1}{(n-1)!}x^{n-1} + \frac{1}{n!}x^n}$ </div>
+
+    <div style="width:600px">
+    <p>The black line shows the function $f(x) = e^x$. The red line shows the polynomial</p>
+    
+    <div id="show-power-series" style="height:40px;padding-top:20px;padding-left:20px"> $p_0(x) = 1$ </div>
+   
+    <p> (We've used the factorial notation, $n! = 1\cdot2\cdot3\cdot\dots\cdot n$) </p>
+    
+    <p>Notice how the $p_n(x)$ approaches $e^x$ as the degree increases. 
+    The low degree polynomials do a fairly good job of approximating $e^x$ if $x$ is close to 0, whereas higher degree is needed
+    to approximate $e^x$ if $x$ is not so close to 0. 
+    Beyond degree $n \gtrapprox 12$, the polynomial looks like it is almost overlayed on $e^x$. 
+    But beware: it is only on this fixed domain, $[-4,2]$, that $p_n(x)$ looks very close to $e^x$.
+    If you enlarge the domain, you will see that the polynomial isn't close to $e^x$ if $x$ is far away from 0, and you will
+    need to increase the degree of the polynomial further to make it close to $e^x$. 
+    In fact, no matter how high the polynomial degree is, it won't do a good job of approximating $e^x$ if $x$ is <i>really</i> far 
+    from 0, and you will need to increase the degree further still.
+    </p>
+    <p> What if you increase the degree of the polynomial to infinity? It's not hard to believe that, for each $x$,
+    $$ \lim_{n \rightarrow \infty} p_n(x) = e^x  . $$
+    </p>
+    </div>
+    
+    </body>
+
+
+</html>

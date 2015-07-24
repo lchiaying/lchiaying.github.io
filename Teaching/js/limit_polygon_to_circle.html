@@ -1,0 +1,102 @@
+<!-- 
+Author: Chia Ying Lee
+Date: 30 Aug 2014
+Description: JS applet to illustrate how an n-sided regular polygon tends towards a circle as n tends to infinity
+ -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+    <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+		<title>Polygon limits to circle</title>			
+    </head>
+
+    <body onLoad="draw(5);pmdials();">
+    <script language="javascript" type="text/javascript">
+    	var nEdges = 5;
+    	var imgwidth = 30; var imgxpos = 10; var imgypos = 260;
+		function draw(n) {
+			nEdges = n;
+			var canvas = document.getElementById("canvas");
+    	  	if(canvas.getContext) {
+	    	  	var ctx = canvas.getContext("2d");
+	    	  	ctx.clearRect(0, 0, canvas.width, canvas.width);
+	    	  	<!-- Draw polygon -->
+	    	  	var x0 = canvas.width / 2;
+	    	  	var y0 = x0 - 20;
+	    	  	var radius = .4 * canvas.width;
+	    	  	ctx.beginPath(); ctx.moveTo(x0 + radius, y0);
+	    	  	for (var i = 1; i <= nEdges; ++i) {
+	    	  		var theta = Math.PI * i * 2 / nEdges;
+	    	  		ctx.lineTo(Math.cos(theta) * radius + x0, Math.sin(theta) * radius + y0);
+	    	  	}
+	    	  	ctx.stroke();
+	    	  	<!-- Text -->
+	    	  	ctx.font = "18pt Helvetica bold, sans-serif"
+	    	  	ctx.fillText(nEdges + '-sided polygon', imgxpos + 2 * imgwidth + 20, canvas.height-15);
+	    	  	<!-- Minus/Plus controls -->
+	    	  	var img_minus = new Image();
+	    	  	img_minus.onload = function() { ctx.drawImage(img_minus, imgxpos, imgypos, imgwidth, imgwidth);}
+	    	  	img_minus.src = 'images/minus.gif';
+	    	  	var img_plus = new Image();
+	    	  	img_plus.onload = function() { ctx.drawImage(img_plus, imgxpos + imgwidth + 10, imgypos, imgwidth, imgwidth); }
+	    	  	img_plus.src = 'images/plus.gif';
+    	  	}
+    	  	
+		}
+    	  	
+   	  	function pmdials() {
+   	  		var canvas = document.getElementById("canvas");
+   	  		var ctx = canvas.getContext("2d");
+       	  	canvas.addEventListener("click", onCanvasClick, false);
+       	    function onCanvasClick(e) {
+       	    	var pos = getCursorPosition(e);
+       	    	if (pos[0] >= imgxpos && pos[0] <= (imgxpos + imgwidth) && pos[1] >= imgypos && pos[1] <= (imgypos + imgwidth)) {
+       				nEdges--;
+       				if (nEdges < 3) { nEdges = 3; }
+       				draw(nEdges);
+       	    	} 
+       	    	else if (pos[0] >= (imgxpos + imgwidth + 10) && pos[0] <= (imgxpos + 2*imgwidth + 10) && pos[1] >= imgypos && pos[1] <= (imgypos + imgwidth)) {
+       	    		nEdges++;
+       				draw(nEdges); 
+       	    	}
+       	    }
+       	    function getCursorPosition(e) {
+       	    	var x;
+       	    	var y;
+       	      	if (e.pageX != undefined && e.pageY != undefined) {
+       	  			x = e.pageX;
+       	  			y = e.pageY;
+       	      	} else {
+    	    	  	x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+    	    	  	y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+    	    	}
+        		x -= canvas.offsetLeft;
+        	    y -= canvas.offsetTop;  
+    	    	return [x,y];
+    	    }
+   	  	}
+    	  	
+		
+    </script>
+    <noscript>
+    	<h3>This site requires JavaScript.</h3>
+    </noscript>
+    
+    <style type="text/css">
+      canvas { border: 1px solid black; }
+    </style>
+    
+    <canvas id="canvas" width='300' height='300'>
+	<p>Sorry: Browser does not support Graphics Canvas</p></canvas>
+    <br/>
+
+    
+    </body>
+
+
+</html>

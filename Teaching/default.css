@@ -1,0 +1,113 @@
+a {
+    color: #ff00ff;
+    text-decoration: none;
+}
+/* body */
+body {
+    background: #FFF url("clocktower.jpg") repeat-y fixed bottom center;
+    color: #333;
+    margin: 20px 0;
+    text-align: center;
+    font-family: 'Fanwood Text', 1.5em serif;
+}
+
+/* header */
+.header {
+    /*background: #FFF;
+    border-bottom: 1px solid #E5E5E5;*/
+    font: bold 2em Georgia;
+    line-height: 2.4em;
+    color: #FFF;
+    text-shadow: 2px 2px #800000;
+}
+
+/* main */
+.main {
+    background: #FFF; 
+    border: 3px double #EEE; 
+    border-color: #E4E4E4 #CFCFCF #CCC #CFCFCF; 
+    margin: 20px auto 4px auto; 
+    text-align: left;
+    width: 770px; 
+    opacity: 0.96;
+}
+.container {
+    margin: 10px;
+}
+
+/* menu */
+.menu a {
+    background: #42c00c;
+    border-right: 1px solid #CECECE;
+    border-top: 1px solid #E5E5E5;
+    color: #ffffff;
+    float: left;
+    padding-top: 3px;
+    width: 149px; height: 36px;
+    font: italic 12px/30px Georgia, serif;
+    /*font-family: 'Fanwood Text', serif;*/
+    font-size: 120%;
+    text-align:center;
+}
+
+.menu a span {
+    padding-left: 6px;
+}
+.menu a:hover {
+    font: italic bold 12px/30px Georgia, serif;
+    font-size: 120%
+}
+.menu a#last {
+    width: 150px;
+    border-right: none;
+}
+
+/* content */
+.content {
+    background: #F5F5F5;
+    border-top: 1px solid #E5E5E5;
+    clear: both;
+}
+.content h1 {
+    margin: 5px;
+    color: #666;
+    font: 100 30px/0.8 'Cookie', Helvetica, sans-serif;
+    text-shadow: 4px 4px 3px rgba(0,0,0,0.1); 
+}
+.content h2 {
+    margin: 5px;
+    font: 100 25px/0.8 'Cookie', Helvetica, sans-serif;
+    color: #666;
+}
+.content p {
+    margin: 3px 10px 6px; color: #666;
+}
+
+/* ordered and unordered lists */
+ul {
+    margin: 3px 0 6px; color: #666;
+    list-style-type:circle;
+    font-family: 'Fanwood Text', 1.1em serif;
+}
+
+ol {
+    margin: 3px 0 6px; color: #666;
+    list-style-type:upper-roman;
+    font-family: 'Fanwood Text', 1.1em serif;
+}
+/* footer */
+.footer {
+    padding: 5px;
+    /*background: #F5F5F5;*/
+    color: #00ffff;
+    font-family: 'Fanwood Text', 1.1em serif;
+    font-size:75%;
+}
+.footer .left, .footer .right {padding: 0 5px;}
+.footer .right, .footer .right a {color: #000000;}
+.footer .right a:hover {color: #444;}
+
+/* floats */
+.left {float: left;}
+.right {float: right;}
+.clearer {clear: both;} 
